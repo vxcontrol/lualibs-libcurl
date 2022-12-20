@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SECURITY_H
-#define HEADER_CURL_SECURITY_H
+#ifndef HEADER_CURL_KRB5_H
+#define HEADER_CURL_KRB5_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -7,11 +7,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2021, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -26,7 +26,7 @@ struct Curl_sec_client_mech {
   const char *name;
   size_t size;
   int (*init)(void *);
-  int (*auth)(void *, struct connectdata *);
+  int (*auth)(void *, struct Curl_easy *data, struct connectdata *);
   void (*end)(void *);
   int (*check_prot)(void *, int);
   int (*overhead)(void *, int, int);
@@ -39,13 +39,13 @@ struct Curl_sec_client_mech {
 #define AUTH_ERROR      2
 
 #ifdef HAVE_GSSAPI
-int Curl_sec_read_msg(struct connectdata *conn, char *,
+int Curl_sec_read_msg(struct Curl_easy *data, struct connectdata *conn, char *,
                       enum protection_level);
 void Curl_sec_end(struct connectdata *);
-CURLcode Curl_sec_login(struct connectdata *);
+CURLcode Curl_sec_login(struct Curl_easy *, struct connectdata *);
 int Curl_sec_request_prot(struct connectdata *conn, const char *level);
-
-extern struct Curl_sec_client_mech Curl_krb5_client_mech;
+#else
+#define Curl_sec_end(x)
 #endif
 
-#endif /* HEADER_CURL_SECURITY_H */
+#endif /* HEADER_CURL_KRB5_H */

@@ -1,5 +1,3 @@
-#ifndef HEADER_CURL_POLARSSL_H
-#define HEADER_CURL_POLARSSL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -7,12 +5,12 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 2012 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
- * Copyright (C) 2010, Hoi-Ho Chan, <hoiho.chan@gmail.com>
+ * Copyright (C) 2020 - 2021, Jacob Hoffman-Andrews,
+ * <github@hoffman-andrews.com>
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -22,11 +20,14 @@
  * KIND, either express or implied.
  *
  ***************************************************************************/
+#ifndef HEADER_CURL_RUSTLS_H
+#define HEADER_CURL_RUSTLS_H
+
 #include "curl_setup.h"
 
-#ifdef USE_POLARSSL
+#ifdef USE_RUSTLS
 
-extern const struct Curl_ssl Curl_ssl_polarssl;
+extern const struct Curl_ssl Curl_ssl_rustls;
 
-#endif /* USE_POLARSSL */
-#endif /* HEADER_CURL_POLARSSL_H */
+#endif /* USE_RUSTLS */
+#endif /* HEADER_CURL_RUSTLS_H */

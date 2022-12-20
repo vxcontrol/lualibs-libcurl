@@ -1,4 +1,4 @@
---curl.h from libcurl 7.46.0 with 7.67.0 additions.
+--curl.h from libcurl 7.46.0 with 7.67.0 additions and minor update to 7.76.1.
 local ffi = require'ffi'
 
 if ffi.abi'win' then
@@ -293,6 +293,26 @@ typedef enum {
 	CURLOPT_ALTSVC                        = 10000 + 287,
 	CURLOPT_MAXAGE_CONN                   =     0 + 288,
 	CURLOPT_SASL_AUTHZID                  = 10000 + 289,
+	CURLOPT_MAIL_RCPT_ALLLOWFAILS         =     0 + 290,
+	CURLOPT_SSLCERT_BLOB                  = 40000 + 291,
+	CURLOPT_SSLKEY_BLOB                   = 40000 + 292,
+	CURLOPT_PROXY_SSLCERT_BLOB            = 40000 + 293,
+	CURLOPT_PROXY_SSLKEY_BLOB             = 40000 + 294,
+	CURLOPT_ISSUERCERT_BLOB               = 40000 + 295,
+	CURLOPT_PROXY_ISSUERCERT              = 10000 + 296,
+	CURLOPT_PROXY_ISSUERCERT_BLOB         = 40000 + 297,
+	CURLOPT_SSL_EC_CURVES                 = 10000 + 298,
+	CURLOPT_HSTS_CTRL                     =     0 + 299,
+	CURLOPT_HSTS                          = 10000 + 300,
+	CURLOPT_HSTSREADFUNCTION              = 20000 + 301,
+	CURLOPT_HSTSREADDATA                  = 10000 + 302,
+	CURLOPT_HSTSWRITEFUNCTION             = 20000 + 303,
+	CURLOPT_HSTSWRITEDATA                 = 10000 + 304,
+	CURLOPT_AWS_SIGV4                     = 10000 + 305,
+	CURLOPT_DOH_SSL_VERIFYPEER            =     0 + 306,
+	CURLOPT_DOH_SSL_VERIFYHOST            =     0 + 307,
+	CURLOPT_DOH_SSL_VERIFYSTATUS          =     0 + 308,
+	CURLOPT_LASTENTRY                     =         309,
 	CURLOPT_FILE                          = CURLOPT_WRITEDATA,
 	CURLOPT_INFILE                        = CURLOPT_READDATA,
 	CURLOPT_WRITEHEADER                   = CURLOPT_HEADERDATA,
@@ -558,7 +578,7 @@ typedef enum {
 	CURLE_OBSOLETE57,
 	CURLE_SSL_CERTPROBLEM,
 	CURLE_SSL_CIPHER,
-	CURLE_SSL_CACERT,
+	CURLE_PEER_FAILED_VERIFICATION,
 	CURLE_BAD_CONTENT_ENCODING,
 	CURLE_LDAP_INVALID_URL,
 	CURLE_FILESIZE_EXCEEDED,
@@ -593,6 +613,9 @@ typedef enum {
 	CURLE_HTTP2_STREAM,
 	CURLE_RECURSIVE_API_CALL,
 	CURLE_AUTH_ERROR,
+	CURLE_HTTP3,
+	CURLE_QUIC_CONNECT_ERROR,
+	CURLE_PROXY,
 	CURL_LAST,
 	CURLE_OBSOLETE16 = CURLE_HTTP2,
 	CURLE_OBSOLETE10 = CURLE_FTP_ACCEPT_FAILED,
@@ -626,6 +649,44 @@ typedef enum {
 	CURLE_FTP_BAD_DOWNLOAD_RESUME = CURLE_BAD_DOWNLOAD_RESUME,
 	CURLE_ALREADY_COMPLETE = 99999,
 } CURLcode;
+typedef enum {
+	CURLPX_OK,
+	CURLPX_BAD_ADDRESS_TYPE,
+	CURLPX_BAD_VERSION,
+	CURLPX_CLOSED,
+	CURLPX_GSSAPI,
+	CURLPX_GSSAPI_PERMSG,
+	CURLPX_GSSAPI_PROTECTION,
+	CURLPX_IDENTD,
+	CURLPX_IDENTD_DIFFER,
+	CURLPX_LONG_HOSTNAME,
+	CURLPX_LONG_PASSWD,
+	CURLPX_LONG_USER,
+	CURLPX_NO_AUTH,
+	CURLPX_RECV_ADDRESS,
+	CURLPX_RECV_AUTH,
+	CURLPX_RECV_CONNECT,
+	CURLPX_RECV_REQACK,
+	CURLPX_REPLY_ADDRESS_TYPE_NOT_SUPPORTED,
+	CURLPX_REPLY_COMMAND_NOT_SUPPORTED,
+	CURLPX_REPLY_CONNECTION_REFUSED,
+	CURLPX_REPLY_GENERAL_SERVER_FAILURE,
+	CURLPX_REPLY_HOST_UNREACHABLE,
+	CURLPX_REPLY_NETWORK_UNREACHABLE,
+	CURLPX_REPLY_NOT_ALLOWED,
+	CURLPX_REPLY_TTL_EXPIRED,
+	CURLPX_REPLY_UNASSIGNED,
+	CURLPX_REQUEST_FAILED,
+	CURLPX_RESOLVE_HOST,
+	CURLPX_SEND_AUTH,
+	CURLPX_SEND_CONNECT,
+	CURLPX_SEND_REQUEST,
+	CURLPX_UNKNOWN_FAIL,
+	CURLPX_UNKNOWN_MODE,
+	CURLPX_USER_REJECTED,
+	CURLPX_LAST /* never use */
+} CURLproxycode;
+
 typedef CURLcode (*curl_conv_callback)(char *buffer, size_t length);
 typedef CURLcode (*curl_ssl_ctx_callback)(CURL *curl,
 														void *ssl_ctx,
@@ -640,18 +701,20 @@ enum {
 	CURLPROXY_SOCKS5_HOSTNAME = 7
 };
 enum {
-	CURLAUTH_NONE        = ((unsigned long)0),
-	CURLAUTH_BASIC       = (((unsigned long)1)<<0),
-	CURLAUTH_DIGEST      = (((unsigned long)1)<<1),
-	CURLAUTH_NEGOTIATE   = (((unsigned long)1)<<2),
+	CURLAUTH_NONE         = ((unsigned long)0),
+	CURLAUTH_BASIC        = (((unsigned long)1)<<0),
+	CURLAUTH_DIGEST       = (((unsigned long)1)<<1),
+	CURLAUTH_NEGOTIATE    = (((unsigned long)1)<<2),
 	CURLAUTH_GSSNEGOTIATE = CURLAUTH_NEGOTIATE,
-	CURLAUTH_NTLM        = (((unsigned long)1)<<3),
-	CURLAUTH_DIGEST_IE   = (((unsigned long)1)<<4),
-	CURLAUTH_NTLM_WB     = (((unsigned long)1)<<5),
-	CURLAUTH_BEARER      = (((unsigned long)1)<<6),
-	CURLAUTH_ONLY        = (((unsigned long)1)<<31),
-	CURLAUTH_ANY         = (~CURLAUTH_DIGEST_IE),
-	CURLAUTH_ANYSAFE     = (~(CURLAUTH_BASIC|CURLAUTH_DIGEST_IE)),
+	CURLAUTH_GSSAPI       = CURLAUTH_NEGOTIATE,
+	CURLAUTH_NTLM         = (((unsigned long)1)<<3),
+	CURLAUTH_DIGEST_IE    = (((unsigned long)1)<<4),
+	CURLAUTH_NTLM_WB      = (((unsigned long)1)<<5),
+	CURLAUTH_BEARER       = (((unsigned long)1)<<6),
+	CURLAUTH_AWS_SIGV4    = (((unsigned long)1)<<7),
+	CURLAUTH_ONLY         = (((unsigned long)1)<<31),
+	CURLAUTH_ANY          = (~CURLAUTH_DIGEST_IE),
+	CURLAUTH_ANYSAFE      = (~(CURLAUTH_BASIC|CURLAUTH_DIGEST_IE)),
 };
 enum {
 	CURLSSH_AUTH_ANY       = ~0,
@@ -688,6 +751,7 @@ enum curl_khstat {
 	CURLKHSTAT_FINE,
 	CURLKHSTAT_REJECT,
 	CURLKHSTAT_DEFER,
+	CURLKHSTAT_FINE_REPLACE,
 	CURLKHSTAT_LAST
 };
 enum curl_khmatch {
@@ -710,8 +774,11 @@ enum {
 	CURLUSESSL_LAST
 };
 enum {
-	CURLSSLOPT_ALLOW_BEAST = (1<<0),
-	CURLSSLOPT_NO_REVOKE = (1<<1),
+	CURLSSLOPT_ALLOW_BEAST        = (1<<0),
+	CURLSSLOPT_NO_REVOKE          = (1<<1),
+	CURLSSLOPT_NO_PARTIALCHAIN    = (1<<2),
+	CURLSSLOPT_REVOKE_BEST_EFFORT = (1<<3),
+	CURLSSLOPT_NATIVE_CA          = (1<<4),
 	CURLFTPSSL_NONE      = CURLUSESSL_NONE,
 	CURLFTPSSL_TRY       = CURLUSESSL_TRY,
 	CURLFTPSSL_CONTROL   = CURLUSESSL_CONTROL,
@@ -783,6 +850,8 @@ enum {
 	CURLPROTO_GOPHER     = (1<<25),
 	CURLPROTO_SMB        = (1<<26),
 	CURLPROTO_SMBS       = (1<<27),
+	CURLPROTO_MQTT       = (1<<28),
+	CURLPROTO_GOPHERS    = (1<<29),
 	CURLPROTO_ALL        = (~0),
 };
 enum {
@@ -978,8 +1047,11 @@ typedef enum {
 	CURLINFO_REDIRECT_TIME_T           = CURLINFO_OFF_T  + 55,
 	CURLINFO_APPCONNECT_TIME_T         = CURLINFO_OFF_T  + 56,
 	CURLINFO_RETRY_AFTER               = CURLINFO_OFF_T  + 57,
+	CURLINFO_EFFECTIVE_METHOD          = CURLINFO_OFF_T  + 58,
+	CURLINFO_PROXY_ERROR               = CURLINFO_OFF_T  + 59,
+	CURLINFO_REFERER                   = CURLINFO_OFF_T  + 60,
 	CURLINFO_HTTP_CODE                 = CURLINFO_RESPONSE_CODE,
-	CURLINFO_LASTONE = 57,
+	CURLINFO_LASTONE = 60,
 } CURLINFO;
 enum {
 	CURLCLOSEPOLICY_NONE,
@@ -1050,8 +1122,11 @@ typedef enum {
 	CURLVERSION_FOURTH,
 	CURLVERSION_FIFTH,
 	CURLVERSION_SIXTH,
+	CURLVERSION_SEVENTH,
+	CURLVERSION_EIGHTH,
+	CURLVERSION_NINTH,
 	CURLVERSION_LAST,
-	CURLVERSION_NOW = CURLVERSION_SIXTH,
+	CURLVERSION_NOW = CURLVERSION_SEVENTH,
 } CURLversion;
 typedef struct {
 	CURLversion   age;
@@ -1073,6 +1148,11 @@ typedef struct {
 	unsigned int  nghttp2_ver_num;
 	const char*   nghttp2_version;
 	const char*   quic_version;
+	const char*   cainfo;
+	const char*   capath;
+	unsigned int  zstd_ver_num;
+	const char*   zstd_version;
+	const char*   hyper_version;
 } curl_version_info_data;
 enum {
 	CURL_VERSION_IPV6         = (1<<0),
@@ -1102,6 +1182,10 @@ enum {
 	CURL_VERSION_ALTSVC       = (1<<24),
 	CURL_VERSION_HTTP3        = (1<<25),
 	CURL_VERSION_ESNI         = (1<<26),
+	CURL_VERSION_ZSTD         = (1<<26),
+	CURL_VERSION_UNICODE      = (1<<27),
+	CURL_VERSION_HSTS         = (1<<28),
+	CURL_VERSION_GSASL        = (1<<29),
 };
 curl_version_info_data *curl_version_info(CURLversion);
 
